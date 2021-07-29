@@ -22,12 +22,12 @@ typedef struct {
     QueueHandle_t send_report_task_queue;
     SemaphoreHandle_t start_sem;
     SemaphoreHandle_t stop_sem;
-}status_report_data;
+}status_report_data_t;
 
 
 typedef struct {
-    status_report_public_handle handle_pub;
-    status_report_data handle_data;
-}status_report_private_handle;
+    test_status_report_handle_t handle_pub;
+    status_report_data_t handle_data;
+}test_status_report_handle_priv_t;
 
 #endif //_STATUS_REPORT_PRIVATE_H_

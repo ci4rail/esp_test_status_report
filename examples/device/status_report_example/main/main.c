@@ -52,13 +52,13 @@ static void initialize_cdc_ecm_interface(void)
 
 void app_main(void)
 {
-    status_report_public_handle *handle;
+    test_status_report_handle_t *handle;
     int port = 10000;
 
     /* setup cdc ecm interface */
     initialize_cdc_ecm_interface();
 
-    host_report_create_instance(&handle, port);
+    new_test_status_report_instance(&handle, port);
     handle->wait_for_start(handle);
     handle->report_status(handle, "Test String");
     handle->wait_for_stop(handle);

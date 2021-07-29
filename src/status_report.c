@@ -21,10 +21,10 @@ static const char *TAG = "status-report";
 
 static void status_report_task(void *arg)
 {
-    status_report_private_handle* handle_priv = (status_report_private_handle*)arg;
+    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)arg;
     char client_addr_str[128];
     int addr_family = AF_INET;
-    int port = 1234;
+    int port = handle_priv->handle_data.port;
     int ip_protocol = 0;
     struct sockaddr_storage dest_addr;
     struct sockaddr_storage source_addr;
@@ -103,6 +103,7 @@ static void status_report_task(void *arg)
         }
     }
 
+    /* workaround to avoid that socket is closed while it is used in background */
     vTaskDelay(pdMS_TO_TICKS(1000));
     shutdown(sock, 0);
     close(sock);
@@ -111,50 +112,67 @@ CLEAN_UP_LISTEN_SOCKET:
     vTaskDelete(NULL);
 }
 
-static esp_err_t wait_for_host_to_start(status_report_public_handle *handle)
+static esp_err_t wait_for_host_to_start(test_status_report_handle_t *handle)
 {
-    status_report_private_handle* handle_priv = (status_report_private_handle*)handle;
+    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
     /* wait for start */
     xSemaphoreTake(handle_priv->handle_data.start_sem, portMAX_DELAY);
     ESP_LOGI(TAG, "Start");
     return ESP_OK;
 }
 
-static esp_err_t wait_for_host_to_stop(status_report_public_handle *handle)
+static esp_err_t wait_for_host_to_stop(test_status_report_handle_t *handle)
 {
-    status_report_private_handle* handle_priv = (status_report_private_handle*)handle;
+    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
     /* wait for start */
     xSemaphoreTake(handle_priv->handle_data.stop_sem, portMAX_DELAY);
     ESP_LOGI(TAG, "Stop");
     return ESP_OK;
 }
 
-static esp_err_t report_status_to_host(status_report_public_handle *handle, char* msg)
+static esp_err_t report_status_to_host(test_status_report_handle_t *handle, char* msg)
 {
-    status_report_private_handle* handle_priv = (status_report_private_handle*)handle;
+    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
     ESP_LOGI(TAG, "Report to host: %s", msg);
     /* send queue */
     xQueueSend(handle_priv->handle_data.send_report_task_queue, &(msg[0]), portMAX_DELAY);
     return ESP_OK;
 }
 
-void host_report_create_instance(status_report_public_handle** return_handle, int port)
+esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, int port)
 {
     /* create handle */
-    status_report_private_handle* handle = malloc(sizeof(status_report_private_handle));
+    test_status_report_handle_priv_t* handle = malloc(sizeof(test_status_report_handle_priv_t));
+    if(handle == NULL) {
+        ESP_LOGE(TAG, "Could not allocate memory for status report handle");
+        return ESP_FAIL;
+    }
     /* set methods */
     handle->handle_pub.wait_for_start = &wait_for_host_to_start;
     handle->handle_pub.wait_for_stop = &wait_for_host_to_stop;
     handle->handle_pub.report_status = &report_status_to_host;
     /* create queues and semaphores */
     handle->handle_data.send_report_task_queue = xQueueCreate(10, sizeof(char)*MAX_MSG_SIZE);
+    if(handle->handle_data.send_report_task_queue == 0) {
+        ESP_LOGE(TAG, "Could not create queue");
+        return ESP_FAIL;
+    }
     handle->handle_data.start_sem = xSemaphoreCreateBinary();
+    if(handle->handle_data.start_sem == NULL) {
+        ESP_LOGE(TAG, "Could not create start semaphore");
+        return ESP_FAIL;
+    }
     handle->handle_data.stop_sem = xSemaphoreCreateBinary();
+    if(handle->handle_data.stop_sem == NULL) {
+        ESP_LOGE(TAG, "Could not create stop semaphore");
+        return ESP_FAIL;
+    }
     /* set parameter */
     handle->handle_data.port = port;
 
     /* give task name and set prio */
     xTaskCreate(&status_report_task, "test_status_report", STATUS_REPORT_THREAD_STACK_SIZE, (void*)handle, 5, NULL);
     /* return handle to caller */
-    *return_handle = (status_report_public_handle*)handle;
+    *return_handle = (test_status_report_handle_t*)handle;
+    return ESP_OK;
 }

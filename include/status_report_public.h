@@ -17,15 +17,15 @@ limitations under the License.
 
 #define MAX_MSG_SIZE  255U
 
-typedef struct status_report_public_handle status_report_public_handle;
+typedef struct test_status_report_handle_t test_status_report_handle_t;
 
-struct status_report_public_handle {
+struct test_status_report_handle_t {
     /* todo return error */
-    esp_err_t (*report_status)(status_report_public_handle*, char*);
-    esp_err_t (*wait_for_start)(status_report_public_handle*);
-    esp_err_t (*wait_for_stop)(status_report_public_handle*);
+    esp_err_t (*report_status)(test_status_report_handle_t*, char*);
+    esp_err_t (*wait_for_start)(test_status_report_handle_t*);
+    esp_err_t (*wait_for_stop)(test_status_report_handle_t*);
 };
 
-void host_report_create_instance(status_report_public_handle** return_handle, int port);
+esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, int port);
 
 #endif //_STATUS_REPORT_PUBLIC_H_
