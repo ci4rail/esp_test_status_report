@@ -1,0 +1,13 @@
+import socket
+import sys
+
+ESP_IP = "192.168.7.1"
+PORT = 1234
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("try to connect")
+sock.connect((ESP_IP, PORT))
+print("connected...")
+data = sock.recv(255)
+print("msg: ", data.decode())
+sock.close()
