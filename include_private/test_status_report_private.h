@@ -13,7 +13,7 @@ limitations under the License.
 #ifndef _STATUS_REPORT_PRIVATE_H_
 #define _STATUS_REPORT_PRIVATE_H_
 
-#include "status_report_public.h"
+#include "test_status_report.h"
 
 #define STATUS_REPORT_THREAD_STACK_SIZE  4096
 

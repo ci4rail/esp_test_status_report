@@ -13,7 +13,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include "esp_log.h"
-#include "status_report_public.h"
+#include "test_status_report.h"
 
 #include "lwip/sockets.h"
 #include "tusb_cdc_ecm.h"

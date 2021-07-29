@@ -15,7 +15,7 @@ limitations under the License.
 #include "esp_log.h"
 #include "lwip/sockets.h"
 
-#include "status_report_private.h"
+#include "test_status_report_private.h"
 
 static const char *TAG = "status-report";
 
