@@ -58,9 +58,16 @@ void app_main(void)
     /* setup cdc ecm interface */
     initialize_cdc_ecm_interface();
 
-    new_test_status_report_instance(&handle, port);
-    handle->wait_for_start(handle);
-    handle->report_status(handle, "Test String");
-    handle->wait_for_stop(handle);
+    ESP_ERROR_CHECK(new_test_status_report_instance(&handle, port));
+    ESP_LOGI(TAG, "Wait for start...");
+    ESP_ERROR_CHECK(handle->wait_for_start(handle));
+    ESP_LOGI(TAG, "Test started");
+    ESP_ERROR_CHECK(handle->report_status(handle, "Test String"));
+    ESP_ERROR_CHECK(handle->wait_for_stop(handle));
+    ESP_LOGI(TAG, "Test stopped");
+    ESP_LOGI(TAG, "Wait for restart...");
+    ESP_ERROR_CHECK(handle->wait_for_start(handle));
+    ESP_ERROR_CHECK(handle->report_status(handle, "Test String"));
+    ESP_ERROR_CHECK(handle->wait_for_stop(handle));
     ESP_LOGI(TAG, "Test stopped");
 }

@@ -19,9 +19,8 @@ limitations under the License.
 
 static const char *TAG = "status-report";
 
-static void status_report_task(void *arg)
+static esp_err_t status_report_test_run(test_status_report_handle_priv_t* handle_priv)
 {
-    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)arg;
     char client_addr_str[128];
     int addr_family = AF_INET;
     int port = handle_priv->handle_data.port;
@@ -29,6 +28,7 @@ static void status_report_task(void *arg)
     struct sockaddr_storage dest_addr;
     struct sockaddr_storage source_addr;
     socklen_t addr_len = sizeof(source_addr);
+    esp_err_t ret = ESP_OK;
 
     ESP_LOGI(TAG, "Start Test Status Report Server...");
 
@@ -43,8 +43,8 @@ static void status_report_task(void *arg)
     int listen_sock = socket(addr_family, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0) {
         ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
-        vTaskDelete(NULL);
-        return;
+        ret = ESP_FAIL;
+        goto RETURN;
     }
 
     int opt = 1;
@@ -56,6 +56,7 @@ static void status_report_task(void *arg)
     if (err != 0) {
         ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
         ESP_LOGE(TAG, "IPPROTO: %d", addr_family);
+        ret = ESP_FAIL;
         goto CLEAN_UP_LISTEN_SOCKET;
     }
 
@@ -64,6 +65,7 @@ static void status_report_task(void *arg)
     err = listen(listen_sock, 1);
     if (err != 0) {
         ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
+        ret = ESP_FAIL;
         goto CLEAN_UP_LISTEN_SOCKET;
     }
 
@@ -72,6 +74,7 @@ static void status_report_task(void *arg)
     int sock = accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
     if (sock < 0) {
         ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
+        ret = ESP_FAIL;
         goto CLEAN_UP_LISTEN_SOCKET;
     }
 
@@ -109,6 +112,20 @@ static void status_report_task(void *arg)
     close(sock);
 CLEAN_UP_LISTEN_SOCKET:
     close(listen_sock);
+RETURN:
+    return ret;
+}
+
+static void status_report_task(void *arg)
+{
+    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)arg;
+
+    while(1) {
+        if(status_report_test_run(handle_priv) != ESP_OK) {
+            break;
+        }
+    }
+
     vTaskDelete(NULL);
 }
 
