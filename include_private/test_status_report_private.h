@@ -10,8 +10,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef _STATUS_REPORT_PRIVATE_H_
-#define _STATUS_REPORT_PRIVATE_H_
+#ifndef _TEST_STATUS_REPORT_PRIVATE_H_
+#define _TEST_STATUS_REPORT_PRIVATE_H_
 
 #include "test_status_report.h"
 
@@ -30,4 +30,4 @@ typedef struct {
     status_report_data_t handle_data;
 }test_status_report_handle_priv_t;
 
-#endif //_STATUS_REPORT_PRIVATE_H_
+#endif //_TEST_STATUS_REPORT_PRIVATE_H_

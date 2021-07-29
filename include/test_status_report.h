@@ -10,8 +10,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef _STATUS_REPORT_PUBLIC_H_
-#define _STATUS_REPORT_PUBLIC_H_
+#ifndef _TEST_STATUS_REPORT_H_
+#define _TEST_STATUS_REPORT_H_
 
 #include "esp_err.h"
 
@@ -20,7 +20,6 @@ limitations under the License.
 typedef struct test_status_report_handle_t test_status_report_handle_t;
 
 struct test_status_report_handle_t {
-    /* todo return error */
     esp_err_t (*report_status)(test_status_report_handle_t*, char*);
     esp_err_t (*wait_for_start)(test_status_report_handle_t*);
     esp_err_t (*wait_for_stop)(test_status_report_handle_t*);
@@ -28,4 +27,4 @@ struct test_status_report_handle_t {
 
 esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, int port);
 
-#endif //_STATUS_REPORT_PUBLIC_H_
+#endif //_TEST_STATUS_REPORT_H_
