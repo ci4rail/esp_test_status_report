@@ -12,36 +12,29 @@ limitations under the License.
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "esp_log.h"
-#include "test_status_report.h"
 
+#include "esp_log.h"
 #include "lwip/sockets.h"
-#include "tusb_cdc_ecm.h"
+#include "test_status_report.h"
 #include "tinyusb.h"
+#include "tusb_cdc_ecm.h"
 
 static const char *TAG = "status-report-example";
 
 /* configure cdc-ecm driver ip */
-static const ip_addr_t ipaddr  = IPADDR4_INIT_BYTES(192, 168, 7, 1);
+static const ip_addr_t ipaddr = IPADDR4_INIT_BYTES(192, 168, 7, 1);
 static const ip_addr_t netmask = IPADDR4_INIT_BYTES(255, 255, 255, 0);
 static const ip_addr_t gateway = IPADDR4_INIT_BYTES(0, 0, 0, 0);
 
 static void initialize_cdc_ecm_interface(void)
 {
     /* setup CDC-ECM interface*/
-    tinyusb_config_t tusb_cfg = {
-        .descriptor = NULL,
-        .string_descriptor = NULL,
-        .external_phy = false
-    };
+    tinyusb_config_t tusb_cfg = {.descriptor = NULL, .string_descriptor = NULL, .external_phy = false};
 
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 
     tinyusb_config_ethernet_over_usb_t tusb_ethernet_over_usb_cfg = {
-        .ipaddr = ipaddr,
-        .netmask = netmask,
-        .gateway = gateway,
-        .mac_address = {}//MAC address is defined later
+        .ipaddr = ipaddr, .netmask = netmask, .gateway = gateway, .mac_address = {}  // MAC address is defined later
     };
 
     /* get pre-programmed ethernet MAC address */

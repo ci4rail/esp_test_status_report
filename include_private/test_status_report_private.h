@@ -15,19 +15,18 @@ limitations under the License.
 
 #include "test_status_report.h"
 
-#define STATUS_REPORT_THREAD_STACK_SIZE  4096
+#define STATUS_REPORT_THREAD_STACK_SIZE 4096
 
 typedef struct {
     int port;
     QueueHandle_t send_report_task_queue;
     SemaphoreHandle_t start_sem;
     SemaphoreHandle_t stop_sem;
-}status_report_data_t;
-
+} status_report_data_t;
 
 typedef struct {
     test_status_report_handle_t handle_pub;
     status_report_data_t handle_data;
-}test_status_report_handle_priv_t;
+} test_status_report_handle_priv_t;
 
-#endif //_TEST_STATUS_REPORT_PRIVATE_H_
+#endif  //_TEST_STATUS_REPORT_PRIVATE_H_
