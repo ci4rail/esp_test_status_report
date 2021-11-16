@@ -196,9 +196,9 @@ esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_h
 
     /* specify function definition */
     io4edge_func_def_t func_def = {.instance = config->instance,
-        .func_class = IO4EDGE_FUNC_TTYNVT,
+        .func_class = IO4EDGE_FUNC_OTHER,
         .security = IO4EDGE_SEC_NO,
-        .service_type = "_test_reporter",//config->service,
+        .service_type = "_test_reporter",
         .instance_idx = config->instance_idx,
         .main_port = config->port,
         .main_protocol_type = IO4EDGE_PROT_TCP,
