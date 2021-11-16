@@ -26,6 +26,13 @@ struct test_status_report_handle_t {
     esp_err_t (*wait_for_stop)(test_status_report_handle_t*);
 };
 
-esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, int port);
+typedef struct {
+    const char* instance;
+    const char* service;
+    uint8_t instance_idx;
+    int port;
+} test_status_report_config_t;
+
+esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, test_status_report_config_t *config);
 
 #endif //_STATUS_REPORT_PUBLIC_H_
