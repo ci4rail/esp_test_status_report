@@ -28,7 +28,6 @@ struct test_status_report_handle_t {
 
 typedef struct {
     const char* instance;
-    const char* service;
     uint8_t instance_idx;
     int port;
 } test_status_report_config_t;
