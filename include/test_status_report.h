@@ -15,7 +15,7 @@ limitations under the License.
 
 #include "esp_err.h"
 
-#define MAX_MSG_SIZE  255U
+#define MAX_MSG_SIZE 255U
 
 typedef struct test_status_report_handle_t test_status_report_handle_t;
 
@@ -33,4 +33,4 @@ typedef struct {
 
 esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, test_status_report_config_t *config);
 
-#endif //_TEST_STATUS_REPORT_H_
+#endif  //_TEST_STATUS_REPORT_H_

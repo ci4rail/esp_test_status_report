@@ -12,15 +12,15 @@ limitations under the License.
 */
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "esp_log.h"
 #include "lwip/sockets.h"
-
 #include "test_status_report_private.h"
 #include "io4edge_function.h"
 
 static const char *TAG = "status-report";
 
-static esp_err_t status_report_test_run(test_status_report_handle_priv_t* handle_priv)
+static esp_err_t status_report_test_run(test_status_report_handle_priv_t *handle_priv)
 {
     char client_addr_str[128];
     int addr_family = AF_INET;
@@ -90,8 +90,8 @@ static esp_err_t status_report_test_run(test_status_report_handle_priv_t* handle
 
     char msg[MAX_MSG_SIZE];
 
-    while(1) {
-        if(xQueueReceive(handle_priv->handle_data.send_report_task_queue, &(msg[0]), pdMS_TO_TICKS(1000)) == pdTRUE) {
+    while (1) {
+        if (xQueueReceive(handle_priv->handle_data.send_report_task_queue, &(msg[0]), pdMS_TO_TICKS(1000)) == pdTRUE) {
             int written = send(sock, &msg, strlen(msg), 0);
             if (written < 0) {
                 ESP_LOGE(TAG, "Error occurred during sending report: errno %d", errno);
@@ -99,8 +99,7 @@ static esp_err_t status_report_test_run(test_status_report_handle_priv_t* handle
                 xSemaphoreGive(handle_priv->handle_data.stop_sem);
                 break;
             }
-        }
-        else if(recv(sock, NULL, 1, MSG_PEEK | MSG_DONTWAIT) == 0) {
+        } else if (recv(sock, NULL, 1, MSG_PEEK | MSG_DONTWAIT) == 0) {
             /* signal stop */
             xSemaphoreGive(handle_priv->handle_data.stop_sem);
             break;
@@ -119,10 +118,10 @@ RETURN:
 
 static void status_report_task(void *arg)
 {
-    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)arg;
+    test_status_report_handle_priv_t *handle_priv = (test_status_report_handle_priv_t *)arg;
 
-    while(1) {
-        if(status_report_test_run(handle_priv) != ESP_OK) {
+    while (1) {
+        if (status_report_test_run(handle_priv) != ESP_OK) {
             break;
         }
     }
@@ -132,7 +131,7 @@ static void status_report_task(void *arg)
 
 static esp_err_t wait_for_host_to_start(test_status_report_handle_t *handle)
 {
-    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
+    test_status_report_handle_priv_t *handle_priv = (test_status_report_handle_priv_t *)handle;
     /* wait for start */
     xSemaphoreTake(handle_priv->handle_data.start_sem, portMAX_DELAY);
     ESP_LOGI(TAG, "Start");
@@ -141,16 +140,16 @@ static esp_err_t wait_for_host_to_start(test_status_report_handle_t *handle)
 
 static esp_err_t wait_for_host_to_stop(test_status_report_handle_t *handle)
 {
-    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
+    test_status_report_handle_priv_t *handle_priv = (test_status_report_handle_priv_t *)handle;
     /* wait for start */
     xSemaphoreTake(handle_priv->handle_data.stop_sem, portMAX_DELAY);
     ESP_LOGI(TAG, "Stop");
     return ESP_OK;
 }
 
-static esp_err_t report_status_to_host(test_status_report_handle_t *handle, char* msg)
+static esp_err_t report_status_to_host(test_status_report_handle_t *handle, char *msg)
 {
-    test_status_report_handle_priv_t* handle_priv = (test_status_report_handle_priv_t*)handle;
+    test_status_report_handle_priv_t *handle_priv = (test_status_report_handle_priv_t *)handle;
     ESP_LOGI(TAG, "Report to host: %s", msg);
     /* send queue */
     xQueueSend(handle_priv->handle_data.send_report_task_queue, &(msg[0]), portMAX_DELAY);
@@ -160,8 +159,8 @@ static esp_err_t report_status_to_host(test_status_report_handle_t *handle, char
 esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, test_status_report_config_t *config)
 {
     /* create handle */
-    test_status_report_handle_priv_t* handle = malloc(sizeof(test_status_report_handle_priv_t));
-    if(handle == NULL) {
+    test_status_report_handle_priv_t *handle = malloc(sizeof(test_status_report_handle_priv_t));
+    if (handle == NULL) {
         ESP_LOGE(TAG, "Could not allocate memory for status report handle");
         return ESP_FAIL;
     }
@@ -170,18 +169,18 @@ esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_h
     handle->handle_pub.wait_for_stop = &wait_for_host_to_stop;
     handle->handle_pub.report_status = &report_status_to_host;
     /* create queues and semaphores */
-    handle->handle_data.send_report_task_queue = xQueueCreate(10, sizeof(char)*MAX_MSG_SIZE);
-    if(handle->handle_data.send_report_task_queue == 0) {
+    handle->handle_data.send_report_task_queue = xQueueCreate(10, sizeof(char) * MAX_MSG_SIZE);
+    if (handle->handle_data.send_report_task_queue == 0) {
         ESP_LOGE(TAG, "Could not create queue");
         return ESP_FAIL;
     }
     handle->handle_data.start_sem = xSemaphoreCreateBinary();
-    if(handle->handle_data.start_sem == NULL) {
+    if (handle->handle_data.start_sem == NULL) {
         ESP_LOGE(TAG, "Could not create start semaphore");
         return ESP_FAIL;
     }
     handle->handle_data.stop_sem = xSemaphoreCreateBinary();
-    if(handle->handle_data.stop_sem == NULL) {
+    if (handle->handle_data.stop_sem == NULL) {
         ESP_LOGE(TAG, "Could not create stop semaphore");
         return ESP_FAIL;
     }
