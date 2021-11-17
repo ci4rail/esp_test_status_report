@@ -16,6 +16,7 @@ limitations under the License.
 #include "lwip/sockets.h"
 
 #include "test_status_report_private.h"
+#include "io4edge_function.h"
 
 static const char *TAG = "status-report";
 
@@ -156,7 +157,7 @@ static esp_err_t report_status_to_host(test_status_report_handle_t *handle, char
     return ESP_OK;
 }
 
-esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, int port)
+esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_handle, test_status_report_config_t *config)
 {
     /* create handle */
     test_status_report_handle_priv_t* handle = malloc(sizeof(test_status_report_handle_priv_t));
@@ -185,11 +186,25 @@ esp_err_t new_test_status_report_instance(test_status_report_handle_t** return_h
         return ESP_FAIL;
     }
     /* set parameter */
-    handle->handle_data.port = port;
+    handle->handle_data.port = config->port;
 
     /* give task name and set prio */
     xTaskCreate(&status_report_task, "test_status_report", STATUS_REPORT_THREAD_STACK_SIZE, (void*)handle, 5, NULL);
+
     /* return handle to caller */
     *return_handle = (test_status_report_handle_t*)handle;
-    return ESP_OK;
+
+    /* specify function definition */
+    io4edge_func_def_t func_def = {.instance = config->instance,
+        .func_class = IO4EDGE_FUNC_OTHER,
+        .security = IO4EDGE_SEC_NO,
+        .service_type = "_test_reporter",
+        .instance_idx = config->instance_idx,
+        .main_port = config->port,
+        .main_protocol_type = IO4EDGE_PROT_TCP,
+        .aux_port = 0,
+        .aux_protocol_type = IO4EDGE_PROT_NOT_AVAIL,
+        .data_schema_id = IO4EDGE_AUXSCHEMA_NOT_AVAIL};
+    /* register function and create mdns service */
+    return io4edge_function_register(&func_def);
 }
