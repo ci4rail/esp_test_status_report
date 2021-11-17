@@ -15,4 +15,4 @@ set(srcs
 idf_component_register(SRCS "${srcs}"
                        INCLUDE_DIRS "${include_public}"
                        PRIV_INCLUDE_DIRS "${include_private}"
-                       REQUIRES lwip)
+                       REQUIRES lwip esp_io4edge)
